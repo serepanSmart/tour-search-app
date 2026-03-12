@@ -45,7 +45,7 @@ export default tseslint.config(
           ignoreRestSiblings: true,
         },
       ],
-      'import/no-default-export': 'error',
+      // 'import/no-default-export': ['error', { ignorePattern: '\\.module\\.css$' }],
       'import/prefer-default-export': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': [
@@ -57,8 +57,10 @@ export default tseslint.config(
           allowDirectConstAssertionInArrowFunctions: true,
         },
       ],
+      'arrow-body-style': ['warn', 'as-needed'],
       'prefer-const': 'error',
       'no-var': 'error',
+      'curly': ['error', 'all'],
       '@typescript-eslint/no-non-null-assertion': 'warn',
     },
   }

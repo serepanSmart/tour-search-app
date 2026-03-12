@@ -1,0 +1,23 @@
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.flag {
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.name {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}

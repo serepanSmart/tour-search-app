@@ -1,0 +1,29 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.option {
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.option:hover {
+  background-color: var(--color-background-hover);
+}
+
+.empty {
+  padding: var(--spacing-md);
+  color: var(--color-text-secondary);
+  text-align: center;
+}

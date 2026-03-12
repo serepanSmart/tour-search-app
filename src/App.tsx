@@ -1,5 +1,3 @@
-import './App.css';
+import { SearchForm } from '@/components/features/search-form';
 
-export const App = (): React.ReactElement => {
-  return <h1>Hello, World!</h1>;
-};
+export const App = (): React.ReactElement => <SearchForm />;
