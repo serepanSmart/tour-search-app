@@ -12,6 +12,8 @@ interface SearchStoreState {
   setError: (error: string | null) => void;
   setPrices: (prices: PriceOffer[]) => void;
   reset: () => void;
+  lastSearchCountryId: string | null;
+  setLastSearchCountryId: (id: string | null) => void;
 }
 
 export const useSearchStore = create<SearchStoreState>((set) => ({
@@ -20,6 +22,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
   error: null,
   prices: [],
   hasSearched: false,
+  lastSearchCountryId: null,
   setDestination: (destination) => {
     set({ selectedDestination: destination });
   },
@@ -38,6 +41,8 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
       error: null,
       prices: [],
       hasSearched: false,
+      lastSearchCountryId: null,
     });
   },
+  setLastSearchCountryId: (id) => set({ lastSearchCountryId: id }),
 }));

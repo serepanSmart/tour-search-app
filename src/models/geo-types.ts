@@ -36,7 +36,7 @@ export interface PriceOffer extends BaseEntity<string> {
   currency: 'usd';
   startDate: string;
   endDate: string;
-  hotelID?: string;
+  hotelId?: string;
 }
 
 export type PricesMap = EntityMap<PriceOffer>;

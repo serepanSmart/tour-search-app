@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/ui/loader';
 import { ErrorMessage } from '@/components/ui/error-message';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ToursList } from '@/components/features/tours-list';
 import { useCountries, useSearchGeo } from '@/queries';
-import { useSearchStore } from '@/stores';
+import { useEnrichedTours } from '@/hooks/use-enriched-tours';
 import { useSearchPrices } from '@/hooks';
+import { useSearchStore } from '@/stores';
 import styles from './search-form.module.css';
 
 export const SearchForm = (): React.ReactElement => {
@@ -20,6 +22,8 @@ export const SearchForm = (): React.ReactElement => {
     error,
     prices,
     hasSearched,
+    lastSearchCountryId,
+    setLastSearchCountryId,
   } = useSearchStore(
     useShallow((state) => ({
       selectedDestination: state.selectedDestination,
@@ -28,8 +32,11 @@ export const SearchForm = (): React.ReactElement => {
       error: state.error,
       prices: state.prices,
       hasSearched: state.hasSearched,
+      lastSearchCountryId: state.lastSearchCountryId,
+      setLastSearchCountryId: state.setLastSearchCountryId,
     }))
   );
+
   const { startSearch } = useSearchPrices();
 
   const { data: countriesMap } = useCountries();
@@ -44,6 +51,7 @@ export const SearchForm = (): React.ReactElement => {
       }))
     : [];
   const searchOptions = searchResults ? Object.values(searchResults) : [];
+
   const shouldShowCountries =
     !inputValue.length || selectedDestination?.type === 'country';
   const options = shouldShowCountries ? countries : searchOptions;
@@ -52,10 +60,17 @@ export const SearchForm = (): React.ReactElement => {
     e.preventDefault();
     if (selectedDestination?.type === 'country') {
       void startSearch(selectedDestination.id);
+      setLastSearchCountryId(selectedDestination.id);
     }
   };
 
-  const showEmpty = hasSearched && prices.length === 0 && !isLoading && !error;
+  const enrichedTours = useEnrichedTours(
+    prices,
+    lastSearchCountryId ?? undefined
+  );
+
+  const noResults =
+    hasSearched && !enrichedTours.length && !isLoading && !error;
 
   return (
     <div className={styles.container}>
@@ -81,12 +96,10 @@ export const SearchForm = (): React.ReactElement => {
           {isLoading ? 'Пошук...' : 'Знайти'}
         </Button>
       </form>
-      <div>
-        {isLoading && <Loader />}
-        {error && <ErrorMessage message={error} />}
-        {showEmpty && <EmptyState />}
-        {/* TODO: add tours here */}
-      </div>
+      {isLoading && <Loader />}
+      {error && <ErrorMessage message={error} />}
+      {noResults && <EmptyState />}
+      {!!enrichedTours.length && <ToursList tours={enrichedTours} />}
     </div>
   );
 };

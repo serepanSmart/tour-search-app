@@ -1,5 +1,6 @@
 .form {
-  width: 500px;
+  width: 100%;
+  max-width: var(--box-width-md, 560px);
   padding: var(--spacing-xl);
   background: var(--color-background);
   border-radius: var(--radius-lg);
@@ -18,8 +19,6 @@
 }
 
 .container {
-  height: 100vh;
-  width: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;

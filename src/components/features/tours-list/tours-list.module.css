@@ -1,0 +1,17 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg, 24px);
+  justify-content: center;
+  align-items: stretch;
+  max-width: var(--box-width-md, 560px);
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: calc(var(--box-width-sm, 370px) + var(--spacing-lg, 24px))) {
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: var(--box-width-sm, 370px);
+  }
+}
