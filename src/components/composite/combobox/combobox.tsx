@@ -1,4 +1,10 @@
-import React, { useState, useRef, type KeyboardEvent, useEffect } from 'react';
+import {
+  useState,
+  useRef,
+  useEffect,
+  type KeyboardEvent,
+  type ReactElement,
+} from 'react';
 import { Input } from '@/components/ui/input';
 import { Popover } from '@/components/ui/popover';
 import styles from './combobox.module.css';
@@ -11,8 +17,9 @@ interface ComboboxProps<T> {
   options: T[];
   getOptionLabel: (option: T) => string;
   getOptionKey: (option: T) => string | number;
-  renderOption: (option: T) => React.ReactElement;
+  renderOption: (option: T, active?: boolean) => ReactElement;
   placeholder?: string;
+  onEnterWhenValue?: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const Combobox = <T,>({
@@ -25,24 +32,37 @@ export const Combobox = <T,>({
   getOptionKey,
   renderOption,
   placeholder,
-}: ComboboxProps<T>): React.ReactElement => {
+  onEnterWhenValue,
+}: ComboboxProps<T>): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
-  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (inputRef.current) {
-      setAnchorElement(inputRef.current);
+      setAnchorEl(inputRef.current);
     }
   }, []);
 
-  const handleInputClick = (): void => {
+  useEffect(() => {
+    if (isOpen && activeIndex !== -1 && optionRefs.current[activeIndex]) {
+      optionRefs.current[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [activeIndex, isOpen]);
+
+  const openListAndSetFirst = (): void => {
     setIsOpen(true);
+    setActiveIndex(options.length ? 0 : -1);
   };
+
+  const handleInputClick = (): void => openListAndSetFirst();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     onInputChange(e.target.value);
     setIsOpen(true);
+    setActiveIndex(0);
   };
 
   const handleOptionClick = (option: T): void => {
@@ -55,11 +75,46 @@ export const Combobox = <T,>({
     onValueChange(null);
     onInputChange('');
     setIsOpen(false);
+    setActiveIndex(-1);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Enter' && value) {
+      if (onEnterWhenValue) {
+        onEnterWhenValue(e as unknown as React.FormEvent<HTMLFormElement>);
+        return;
+      }
+    }
+    if (
+      !isOpen &&
+      (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter')
+    ) {
+      openListAndSetFirst();
+      return;
+    }
+
+    if (!isOpen) {
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((prev) =>
+        !options.length ? -1 : prev < options.length - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((prev) =>
+        !options.length ? -1 : prev > 0 ? prev - 1 : options.length - 1
+      );
+    } else if (e.key === 'Enter') {
+      if (activeIndex !== -1 && options[activeIndex]) {
+        e.preventDefault();
+        handleOptionClick(options[activeIndex]);
+      }
+    } else if (e.key === 'Escape') {
       setIsOpen(false);
+      setActiveIndex(-1);
     }
   };
 
@@ -74,23 +129,36 @@ export const Combobox = <T,>({
         placeholder={placeholder}
         showClearButton={!!value}
         onClear={handleClear}
+        autoComplete="off"
+        aria-autocomplete="list"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
       />
       <Popover
-        isOpen={isOpen}
+        isOpen={isOpen && anchorEl !== null}
         onClose={() => setIsOpen(false)}
-        anchor={anchorElement}
+        anchor={anchorEl}
       >
-        <ul className={styles.list}>
+        <ul className={styles.list} role="listbox">
           {!options.length ? (
             <li className={styles.empty}>Немає результатів</li>
           ) : (
-            options.map((option) => (
+            options.map((option, index) => (
               <li
                 key={getOptionKey(option)}
-                className={styles.option}
+                className={`${styles.option} ${index === activeIndex ? styles.active : ''}`}
+                ref={(el) => {
+                  optionRefs.current[index] = el;
+                }}
                 onClick={() => handleOptionClick(option)}
+                role="option"
+                aria-selected={
+                  value ? getOptionKey(option) === getOptionKey(value) : false
+                }
+                tabIndex={-1}
+                onMouseEnter={() => setActiveIndex(index)}
               >
-                {renderOption(option)}
+                {renderOption(option, index === activeIndex)}
               </li>
             ))
           )}

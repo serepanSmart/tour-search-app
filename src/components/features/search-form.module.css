@@ -16,3 +16,14 @@
 .form > * + * {
   margin-top: var(--spacing-md);
 }
+
+.container {
+  height: 100vh;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+  padding: var(--spacing-xl);
+  gap: var(--spacing-md);
+}
