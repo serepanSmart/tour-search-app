@@ -19,7 +19,7 @@ export const useEnrichedTours = (
       }
       return hotelsMap;
     },
-    enabled: Boolean(countryId),
+    enabled: !!countryId,
     staleTime: 10 * 60 * 1000,
   });
 
@@ -30,11 +30,11 @@ export const useEnrichedTours = (
   const hotelsArray = Object.entries(data);
 
   return prices.flatMap((price) => {
-    if (typeof price.hotelId !== 'string') {
+    if (typeof price.hotelID !== 'string') {
       return [];
     }
     const found = hotelsArray.find(
-      ([key, hotel]) => key === price.hotelId && isHotel(hotel)
+      ([key, hotel]) => key === price.hotelID && isHotel(hotel)
     );
     if (!found) {
       return [];

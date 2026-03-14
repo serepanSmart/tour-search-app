@@ -17,16 +17,20 @@ const calculateWaitTime = (waitUntil: string): number => {
 export class SearchService {
   private abortController: AbortController | null = null;
 
-  async search(countryID: string): Promise<PriceOffer[]> {
+  async search(
+    countryId: string
+  ): Promise<{ prices: PriceOffer[]; token: string }> {
     this.abortController = new AbortController();
+    let token = '';
 
     try {
-      const { token, waitUntil } = await tourApi.startSearchPrices(countryID);
-
+      const { token: apiToken, waitUntil } =
+        await tourApi.startSearchPrices(countryId);
+      token = apiToken;
       const waitTime = calculateWaitTime(waitUntil);
       await wait(waitTime);
-
-      return await this.pollResults(token, 0);
+      const prices = await this.pollResults(token, 0);
+      return { prices, token };
     } catch (error) {
       this.abortController = null;
       throw error;
@@ -73,10 +77,17 @@ export class SearchService {
     );
   }
 
-  cancel(): void {
+  async cancel(token: string | null): Promise<void> {
     if (this.abortController) {
       this.abortController.abort();
       this.abortController = null;
+    }
+    if (token) {
+      try {
+        await tourApi.stopSearchPrices(token);
+      } catch {
+        // Just ignore errors from cancel API, as we have already aborted the local process and don't care about remote state at this point
+      }
     }
   }
 }

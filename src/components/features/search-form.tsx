@@ -37,7 +37,8 @@ export const SearchForm = (): React.ReactElement => {
     }))
   );
 
-  const { startSearch } = useSearchPrices();
+  const { startSearch, onParamsChanged, isSearching, isCancelling } =
+    useSearchPrices();
 
   const { data: countriesMap } = useCountries();
   const { data: searchResults } = useSearchGeo(inputValue, {
@@ -64,13 +65,28 @@ export const SearchForm = (): React.ReactElement => {
     }
   };
 
+  const handleInputChange = (val: string) => {
+    setInputValue(val);
+    onParamsChanged();
+  };
+
+  const handleValueChange = (val: typeof selectedDestination) => {
+    setDestination(val);
+    onParamsChanged();
+  };
+
   const enrichedTours = useEnrichedTours(
     prices,
     lastSearchCountryId ?? undefined
   );
 
   const noResults =
-    hasSearched && !enrichedTours.length && !isLoading && !error;
+    hasSearched &&
+    !enrichedTours.length &&
+    !isSearching &&
+    !isCancelling &&
+    !isLoading &&
+    !error;
 
   return (
     <div className={styles.container}>
@@ -79,8 +95,8 @@ export const SearchForm = (): React.ReactElement => {
         <Combobox
           value={selectedDestination}
           inputValue={inputValue}
-          onInputChange={setInputValue}
-          onValueChange={setDestination}
+          onInputChange={handleInputChange}
+          onValueChange={handleValueChange}
           options={options}
           getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
@@ -91,9 +107,11 @@ export const SearchForm = (): React.ReactElement => {
         <Button
           type="submit"
           fullWidth
-          disabled={!selectedDestination || isLoading}
+          disabled={
+            !selectedDestination || isSearching || isCancelling || isLoading
+          }
         >
-          {isLoading ? 'Пошук...' : 'Знайти'}
+          {isSearching || isCancelling || isLoading ? 'Пошук...' : 'Знайти'}
         </Button>
       </form>
       {isLoading && <Loader />}
