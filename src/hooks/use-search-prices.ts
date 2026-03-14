@@ -1,139 +1,60 @@
-import { useCallback } from 'react';
-import { useShallow } from 'zustand/shallow';
-import { searchService } from '@/services';
-import { useSearchStore } from '@/stores';
-
-const getParamsHash = (countryID: string | null | undefined): string =>
-  countryID ?? 'none';
+import { useState, useCallback } from 'react';
+import { searchManager } from '@/services';
+import type { EnrichedTour } from '@/models';
 
 interface UseSearchPricesReturn {
-  startSearch: (countryID: string) => Promise<void>;
-  cancelSearch: () => Promise<void>;
-  onParamsChanged: () => void;
-  isSearching: boolean;
-  isCancelling: boolean;
+  data: EnrichedTour[] | null;
+  isLoading: boolean;
+  error: string | null;
+  search: (countryId: string) => Promise<void>;
+  cancel: () => Promise<void>;
+  reset: () => void;
 }
 
 export const useSearchPrices = (): UseSearchPricesReturn => {
-  const {
-    setLoading,
-    setError,
-    setPrices,
-    reset,
-    setActiveSearchToken,
-    setIsSearching,
-    setIsCancelling,
-    setParamsHash,
-    activeSearchToken,
-    isSearching,
-    isCancelling,
-    paramsHash,
-  } = useSearchStore(
-    useShallow((state) => ({
-      setLoading: state.setLoading,
-      setError: state.setError,
-      setPrices: state.setPrices,
-      reset: state.reset,
-      setActiveSearchToken: state.setActiveSearchToken,
-      setIsSearching: state.setIsSearching,
-      setIsCancelling: state.setIsCancelling,
-      setParamsHash: state.setParamsHash,
-      activeSearchToken: state.activeSearchToken,
-      isSearching: state.isSearching,
-      isCancelling: state.isCancelling,
-      paramsHash: state.paramsHash,
-    }))
-  );
+  const [data, setData] = useState<EnrichedTour[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const startSearch = useCallback(
-    async (countryID: string) => {
-      const hash = getParamsHash(countryID);
+  const search = useCallback(async (countryId: string) => {
+    setIsLoading(true);
+    setError(null);
 
-      if (
-        activeSearchToken &&
-        paramsHash === hash &&
-        (isSearching || isCancelling)
-      ) {
-        return;
-      }
-
-      if (
-        activeSearchToken &&
-        paramsHash !== hash &&
-        (isSearching || isCancelling)
-      ) {
-        setIsCancelling(true);
-        await searchService.cancel(activeSearchToken);
-        setIsCancelling(false);
-        setActiveSearchToken(null);
-        setIsSearching(false);
-      }
-
-      reset();
-      setLoading(true);
-      setIsSearching(true);
-      setParamsHash(hash);
-
-      try {
-        const { prices, token } = await searchService.search(countryID);
-        setPrices(prices);
-        setActiveSearchToken(token);
-      } catch (error) {
-        setError(
-          error instanceof Error ? error.message : 'Unknown error occurred'
-        );
-        setActiveSearchToken(null);
-      } finally {
-        setIsSearching(false);
-      }
-    },
-    [
-      activeSearchToken,
-      paramsHash,
-      isSearching,
-      isCancelling,
-      setActiveSearchToken,
-      setIsSearching,
-      setIsCancelling,
-      setLoading,
-      setError,
-      setPrices,
-      reset,
-      setParamsHash,
-    ]
-  );
-
-  const cancelSearch = useCallback(async () => {
-    if (activeSearchToken) {
-      setIsCancelling(true);
-      await searchService.cancel(activeSearchToken);
-      setIsCancelling(false);
-      setActiveSearchToken(null);
-      setIsSearching(false);
-      setParamsHash(null);
+    try {
+      const tours = await searchManager.search(countryId);
+      setData(tours);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      setData(null);
+    } finally {
+      setIsLoading(false);
     }
-    reset();
-  }, [
-    activeSearchToken,
-    reset,
-    setActiveSearchToken,
-    setIsCancelling,
-    setIsSearching,
-    setParamsHash,
-  ]);
+  }, []);
 
-  const onParamsChanged = useCallback(() => {
-    setActiveSearchToken(null);
-    setParamsHash(null);
-    setIsCancelling(false);
-    setIsSearching(false);
-  }, [setActiveSearchToken, setParamsHash, setIsCancelling, setIsSearching]);
+  const cancel = useCallback(async () => {
+    try {
+      await searchManager.cancel();
+      setData(null);
+      setError(null);
+      setIsLoading(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to cancel search');
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setData(null);
+    setError(null);
+    setIsLoading(false);
+    searchManager.resetParams();
+  }, []);
 
   return {
-    startSearch,
-    cancelSearch,
-    onParamsChanged,
-    isSearching,
-    isCancelling,
+    data,
+    isLoading,
+    error,
+    search,
+    cancel,
+    reset,
   };
 };

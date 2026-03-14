@@ -19,7 +19,6 @@ interface ComboboxProps<T> {
   getOptionKey: (option: T) => string | number;
   renderOption: (option: T, active?: boolean) => ReactElement;
   placeholder?: string;
-  onEnterWhenValue?: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const Combobox = <T,>({
@@ -32,7 +31,6 @@ export const Combobox = <T,>({
   getOptionKey,
   renderOption,
   placeholder,
-  onEnterWhenValue,
 }: ComboboxProps<T>): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -79,12 +77,6 @@ export const Combobox = <T,>({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'Enter' && value) {
-      if (onEnterWhenValue) {
-        onEnterWhenValue(e as unknown as React.FormEvent<HTMLFormElement>);
-        return;
-      }
-    }
     if (
       !isOpen &&
       (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter')
