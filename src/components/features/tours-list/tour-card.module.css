@@ -29,7 +29,7 @@
 .title {
   font-size: var(--font-size-lg, 18px);
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: var(--spacing-xs, 4px);
 }
 
 .meta {
@@ -48,7 +48,7 @@
 
 .country img {
   width: 20px;
-  height: 14px;
+  height: var(--font-size-sm, 14px);
   margin-right: var(--spacing-xs, 6px);
   vertical-align: middle;
   border-radius: 2px;
@@ -65,7 +65,7 @@
   font-size: var(--font-size-xl, 24px);
   font-weight: 700;
   color: var(--color-text, #212121);
-  margin: 12px 0 4px 0;
+  margin-block: var(--spacing-md, 12px) var(--spacing-xs, 4px);
   letter-spacing: 1px;
 }
 

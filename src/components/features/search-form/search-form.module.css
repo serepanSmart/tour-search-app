@@ -17,12 +17,3 @@
 .form > * + * {
   margin-top: var(--spacing-md);
 }
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: auto;
-  padding: var(--spacing-xl);
-  gap: var(--spacing-md);
-}
