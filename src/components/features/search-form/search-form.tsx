@@ -1,4 +1,3 @@
-// src/components/features/search-form/search-form.tsx
 import { useShallow } from 'zustand/shallow';
 import { Combobox } from '@/components/composite/combobox';
 import { GeoOption } from '@/components/composite/geo-option';
@@ -9,7 +8,7 @@ import type { GeoEntity } from '@/models';
 import styles from './search-form.module.css';
 
 interface SearchFormProps {
-  onSearch: (countryId: string) => void;
+  onSearch: (entity: GeoEntity) => void;
   isSearching: boolean;
   onParamsChange: () => void;
 }
@@ -43,13 +42,15 @@ export const SearchForm = ({
   const searchOptions = searchResults ? Object.values(searchResults) : [];
 
   const shouldShowCountries =
-    !inputValue.length || selectedDestination?.type === 'country';
+    !inputValue.length &&
+    (!selectedDestination || selectedDestination.type === 'country');
+
   const options = shouldShowCountries ? countries : searchOptions;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    if (selectedDestination?.type === 'country') {
-      onSearch(selectedDestination.id);
+    if (selectedDestination) {
+      onSearch(selectedDestination);
     }
   };
 

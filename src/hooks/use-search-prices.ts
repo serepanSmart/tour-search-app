@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import { searchManager } from '@/services';
-import type { EnrichedTour } from '@/models';
+import type { EnrichedTour, GeoEntity } from '@/models';
 
 interface UseSearchPricesReturn {
   data: EnrichedTour[] | null;
   isLoading: boolean;
   error: string | null;
-  search: (countryId: string) => Promise<void>;
+  search: (entity: GeoEntity) => Promise<void>;
   cancel: () => Promise<void>;
   reset: () => void;
 }
@@ -16,12 +16,22 @@ export const useSearchPrices = (): UseSearchPricesReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const search = useCallback(async (countryId: string) => {
+  const search = useCallback(async (entity: GeoEntity) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const tours = await searchManager.search(countryId);
+      const countryId =
+        entity.type === 'country' ? entity.id : entity.countryId;
+
+      const filters =
+        entity.type === 'hotel'
+          ? { hotelId: entity.id }
+          : entity.type === 'city'
+            ? { cityId: entity.id }
+            : undefined;
+
+      const tours = await searchManager.search(countryId, filters);
       setData(tours);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred');

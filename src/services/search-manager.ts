@@ -2,12 +2,20 @@ import { searchService } from './search-service';
 import { aggregationService } from './aggregation-service';
 import type { EnrichedTour } from '@/models';
 
+interface SearchFilters {
+  hotelId?: number;
+  cityId?: number;
+}
+
 class SearchManager {
   private currentParamsHash: string | null = null;
   private isSearching = false;
 
-  async search(countryId: string): Promise<EnrichedTour[]> {
-    const paramsHash = this.getParamsHash(countryId);
+  async search(
+    countryId: string,
+    filters?: SearchFilters
+  ): Promise<EnrichedTour[]> {
+    const paramsHash = this.getParamsHash(countryId, filters);
 
     if (this.isSearching && paramsHash === this.currentParamsHash) {
       throw new Error('Search already in progress with same parameters');
@@ -27,7 +35,7 @@ class SearchManager {
         countryId
       );
 
-      return enrichedTours;
+      return this.applyFilters(enrichedTours, filters);
     } finally {
       this.isSearching = false;
     }
@@ -47,8 +55,38 @@ class SearchManager {
     return this.isSearching;
   }
 
-  private getParamsHash(countryId: string): string {
-    return countryId;
+  private applyFilters(
+    tours: EnrichedTour[],
+    filters?: SearchFilters
+  ): EnrichedTour[] {
+    if (!filters) {
+      return tours;
+    }
+
+    let filtered = tours;
+
+    if (filters.hotelId) {
+      filtered = filtered.filter((tour) => tour.hotel.id === filters.hotelId);
+    }
+
+    if (filters.cityId && !filters.hotelId) {
+      filtered = filtered.filter(
+        (tour) => tour.hotel.cityId === filters.cityId
+      );
+    }
+
+    return filtered;
+  }
+
+  private getParamsHash(countryId: string, filters?: SearchFilters): string {
+    const parts = [countryId];
+    if (filters?.hotelId) {
+      parts.push(`hotel:${filters.hotelId}`);
+    }
+    if (filters?.cityId) {
+      parts.push(`city:${filters.cityId}`);
+    }
+    return parts.join('|');
   }
 }
 

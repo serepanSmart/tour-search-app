@@ -1,7 +1,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-lg, 24px);
+  gap: var(--spacing-md, 16px);
   justify-content: center;
   align-items: stretch;
   max-width: var(--box-width-md, 560px);
@@ -9,7 +9,7 @@
   width: 100%;
 }
 
-@media (max-width: calc(var(--box-width-sm, 370px) + var(--spacing-lg, 24px))) {
+@media (max-width: calc(var(--box-width-sm, 370px) + var(--spacing-md, 16px))) {
   .grid {
     grid-template-columns: 1fr;
     max-width: var(--box-width-sm, 370px);

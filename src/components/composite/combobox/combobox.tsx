@@ -77,6 +77,10 @@ export const Combobox = <T,>({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (!isOpen && e.key === 'Enter' && value) {
+      return;
+    }
+
     if (
       !isOpen &&
       (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter')
