@@ -1,7 +1,7 @@
 import {
   getCountries as getCountriesRaw,
   searchGeo as searchGeoRaw,
-} from './api';
+} from '@/mock-api/api';
 import type {
   Country,
   CountriesMap,

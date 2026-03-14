@@ -13,6 +13,7 @@ export default defineConfig({
       "@/stores": path.resolve(__dirname, "./src/stores"),
       "@/hooks": path.resolve(__dirname, "./src/hooks"),
       "@/models": path.resolve(__dirname, "./src/models"),
+      "@/mock-api": path.resolve(__dirname, "./src/mock-api"),
       "@/utils": path.resolve(__dirname, "./src/utils"),
       "@/api": path.resolve(__dirname, "./src/api"),
     },

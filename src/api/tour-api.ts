@@ -3,7 +3,7 @@ import {
   getSearchPrices as getSearchPricesRaw,
   stopSearchPrices as stopSearchPricesRaw,
   getHotels as getHotelsRaw,
-} from './api';
+} from '@/mock-api/api';
 import type {
   StartSearchResponse,
   GetSearchPricesResponse,

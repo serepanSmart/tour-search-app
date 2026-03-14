@@ -45,7 +45,6 @@ export default tseslint.config(
           ignoreRestSiblings: true,
         },
       ],
-      // 'import/no-default-export': ['error', { ignorePattern: '\\.module\\.css$' }],
       'import/prefer-default-export': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': [

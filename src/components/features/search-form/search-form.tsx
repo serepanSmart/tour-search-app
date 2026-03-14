@@ -6,12 +6,15 @@ import { useCountries, useSearchGeo } from '@/queries';
 import { useSearchStore } from '@/stores';
 import type { GeoEntity } from '@/models';
 import styles from './search-form.module.css';
+import { commonCardClass } from '@/constants';
 
 interface SearchFormProps {
   onSearch: (entity: GeoEntity) => void;
   isSearching: boolean;
   onParamsChange: () => void;
 }
+
+const classes = [styles.form, commonCardClass].join(' ');
 
 export const SearchForm = ({
   onSearch,
@@ -65,7 +68,7 @@ export const SearchForm = ({
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form className={classes} onSubmit={handleSubmit}>
       <h1 className={styles.title}>Форма пошуку турів</h1>
       <Combobox
         value={selectedDestination}

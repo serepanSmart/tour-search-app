@@ -23,7 +23,11 @@ export const SearchResults = ({
     return <ErrorMessage message={error} />;
   }
 
-  if (!tours?.length) {
+  if (!tours) {
+    return null;
+  }
+
+  if (!tours.length) {
     return <EmptyState />;
   }
 
