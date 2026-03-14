@@ -1,8 +1,14 @@
-import { tourApi } from '@/api';
-import type { PriceOffer, EnrichedTour, HotelsMap } from '@/models';
+import { tourApi, geoApi } from '@/api';
+import type {
+  PriceOffer,
+  EnrichedTour,
+  HotelsMap,
+  CountriesMap,
+} from '@/models';
 
 class AggregationService {
   private hotelsCache = new Map<string, HotelsMap>();
+  private countriesCache: CountriesMap | null = null;
 
   async getEnrichedTours(
     prices: PriceOffer[],
@@ -12,8 +18,14 @@ class AggregationService {
       return [];
     }
 
-    const hotels = await this.getHotels(countryId);
-    return this.mergePricesWithHotels(prices, hotels);
+    const [hotels, countries] = await Promise.all([
+      this.getHotels(countryId),
+      this.getCountries(),
+    ]);
+
+    const countryFlag = countries[countryId]?.flag || '';
+
+    return this.mergePricesWithHotels(prices, hotels, countryFlag);
   }
 
   private async getHotels(countryId: string): Promise<HotelsMap> {
@@ -27,9 +39,20 @@ class AggregationService {
     return hotels;
   }
 
+  private async getCountries(): Promise<CountriesMap> {
+    if (this.countriesCache) {
+      return this.countriesCache;
+    }
+
+    const countries = await geoApi.getCountries();
+    this.countriesCache = countries;
+    return countries;
+  }
+
   private mergePricesWithHotels(
     prices: PriceOffer[],
-    hotels: HotelsMap
+    hotels: HotelsMap,
+    countryFlag: string
   ): EnrichedTour[] {
     return prices.reduce<EnrichedTour[]>((acc, price) => {
       if (!price.hotelID) {
@@ -44,6 +67,7 @@ class AggregationService {
       acc.push({
         ...price,
         hotel,
+        countryFlag,
       });
 
       return acc;
@@ -52,6 +76,7 @@ class AggregationService {
 
   clearCache(): void {
     this.hotelsCache.clear();
+    this.countriesCache = null;
   }
 }
 

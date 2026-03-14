@@ -75,3 +75,8 @@ export interface SearchState {
   prices: PriceOffer[];
   hasSearched: boolean;
 }
+
+export interface EnrichedTour extends PriceOffer {
+  hotel: Hotel;
+  countryFlag: string;
+}

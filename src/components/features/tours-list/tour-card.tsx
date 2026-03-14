@@ -12,10 +12,13 @@ export const TourCard = ({ tour }: TourCardProps): React.ReactElement => (
       <h3 className={styles.title}>{tour.hotel.name}</h3>
       <div className={styles.meta}>
         <span className={styles.country}>
-          <img
-            // src={`https://flagcdn.com/w20/${tour.hotel.countryName === 'Єгипет' ? 'eg' : tour.hotel.countryName === 'Греція' ? 'gr' : 'tr'}.png`}
-            alt={tour.hotel.countryName}
-          />
+          {tour.countryFlag && (
+            <img
+              src={tour.countryFlag}
+              alt={tour.hotel.countryName}
+              className={styles.flag}
+            />
+          )}
           {tour.hotel.countryName}, {tour.hotel.cityName}
         </span>
       </div>

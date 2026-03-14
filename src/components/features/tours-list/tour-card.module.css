@@ -35,15 +35,21 @@
 .meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm, 8px);
   color: var(--color-text-secondary, #757575);
   font-size: var(--font-size-base, 16px);
+}
+
+.country {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 6px);
 }
 
 .country img {
   width: 20px;
   height: 14px;
-  margin-right: 6px;
+  margin-right: var(--spacing-xs, 6px);
   vertical-align: middle;
   border-radius: 2px;
   box-shadow: 0 0 2px #aaa;
